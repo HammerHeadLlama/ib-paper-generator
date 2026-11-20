@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IB Past Paper Generator</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header>
+  <h1>IB Past Paper Generator</h1>
+  <p class="sub">Builds a practice paper from real past-paper questions: pick topics, paper types and marks, review it, then download the questions and the mark scheme as two PDFs.</p>
+</header>
+
+<main>
+  <section id="s-load" class="card">
+    <h2><span class="num">1</span> Load your past papers</h2>
+    <div class="row">
+      <label>Subject
+        <select id="subject"></select>
+      </label>
+      <label class="btn primary">Choose past-paper folder
+        <input id="folder" type="file" webkitdirectory directory multiple hidden>
+      </label>
+    </div>
+    <div id="drop" class="drop">…or drag the folder here</div>
+    <p class="note">Your PDFs stay on your computer: they are read by this page only and never uploaded. IB past papers are copyright of the International Baccalaureate, so they are not included here; use the copies your school gives you.</p>
+    <div id="load-status" class="status"></div>
+  </section>
+
+  <section id="s-settings" class="card">
+    <h2><span class="num">2</span> Settings</h2>
+    <h3>Topics</h3>
+    <div class="row small">
+      <button id="t-all" class="btn">Select all</button>
+      <button id="t-none" class="btn">Clear</button>
+      <span class="hint">Weight: <b>A bit</b> = fewer questions from that topic, <b>A lot</b> = more.</span>
+    </div>
+    <div id="topics" class="topics"></div>
+
+    <h3>Marks by paper type</h3>
+    <div id="mix" class="mix"></div>
+    <div class="row">
+      <label>Total marks <input id="total" type="number" min="0" value="50"></label>
+      <span class="hint">Changing the total adjusts the paper type marked "rest".</span>
+    </div>
+
+    <h3>Options</h3>
+    <div class="row wrap">
+      <label>Years <input id="yfrom" type="number" min="1999" max="2030" value="1999"> to <input id="yto" type="number" min="1999" max="2030" value="2025"></label>
+      <span class="hint">(1999 papers are low-quality scans, so the default starts at 2000)</span>
+      <label><input id="old" type="checkbox" checked> Include questions from older syllabuses</label>
+      <label>Topic match
+        <select id="share">
+          <option value="0.5">At least half the question on my topics</option>
+          <option value="0.75">Mostly on my topics</option>
+          <option value="1">Every part on my topics</option>
+          <option value="0.01">Any part on my topics</option>
+        </select>
+      </label>
+      <label><input id="showsrc" type="checkbox" checked> Show the source (year, paper, question) on the question paper</label>
+    </div>
+    <div class="row">
+      <label>Random seed <input id="seed" type="text" size="8"></label>
+      <button id="reseed" class="btn">New seed</button>
+      <button id="generate" class="btn primary">Generate paper</button>
+    </div>
+    <p class="hint">Same settings + same seed = the same paper. Whole questions are picked first; stand-alone parts top up the last few marks so the total is exact.</p>
+  </section>
+
+  <section id="s-review" class="card" hidden>
+    <h2><span class="num">3</span> Review <span id="round" class="pill"></span></h2>
+    <div id="totals" class="totals"></div>
+    <div class="row wrap">
+      <button id="fill" class="btn primary">Fill the gaps (next round)</button>
+      <button id="dl-q" class="btn">Download question paper</button>
+      <button id="dl-ms" class="btn">Download mark scheme</button>
+      <button id="copy-code" class="btn">Copy paper code</button>
+      <button id="load-code" class="btn">Load a paper code</button>
+    </div>
+    <p class="hint">Remove or replace any question, or untick parts to keep only some of a question (parts it depends on stay in). Then press <b>Fill the gaps</b> to bring each paper type back to its marks with new questions. Removed questions never come back.</p>
+    <div id="entries"></div>
+  </section>
+</main>
+
+<div id="modal" class="modal" hidden><div class="modal-body"><button id="modal-close" class="btn">Close</button><div id="modal-content"></div></div></div>
+<footer>Questions, mark schemes and diagrams come from your own copies of IB past papers. This tool only records where each question is and which syllabus topics it covers.</footer>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

@@ -269,18 +269,78 @@ export function sortByCategory(bank, paper) {
   paper.entries.sort((a, b) => order[categoryOf(idx[a.id])] - order[categoryOf(idx[b.id])]);
 }
 
-// Paper codes: share or reload an exact paper (after manual edits too).
-export function encodePaper(paper) {
-  const o = { v: 1, s: paper.seed, t: paper.targets, e: paper.entries.map((e) => (e.parts ? [e.id, e.parts] : e.id)) };
-  const json = JSON.stringify(o);
-  const b = typeof btoa === "function" ? btoa(unescape(encodeURIComponent(json))) : Buffer.from(json).toString("base64");
-  return b.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+// ---------- paper codes ----------
+// A code records the exact questions (and kept parts) of a paper, so it can be rebuilt or excluded later.
+// v2 format: "2" + base64url(bytes): seed, targets, then per entry a 32-bit hash of the question id
+// (stable across bank rebuilds) and, for partial questions, a bitmask of the kept parts.
+function fnv32(str) {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
+  return h >>> 0;
 }
-export function decodePaper(code) {
-  const b = code.trim().replace(/-/g, "+").replace(/_/g, "/");
+function hashIndex(bank) {
+  if (!bank._hidx) {
+    bank._hidx = new Map();
+    for (const it of bank.items) { const h = fnv32(it.id); if (!bank._hidx.has(h)) bank._hidx.set(h, it); }
+  }
+  return bank._hidx;
+}
+function pushVar(out, n) { do { let b = n & 0x7f; n = Math.floor(n / 128); if (n) b |= 0x80; out.push(b); } while (n); }
+function readVar(buf, pos) { let n = 0, mul = 1, b; do { b = buf[pos.i++]; n += (b & 0x7f) * mul; mul *= 128; } while (b & 0x80); return n; }
+function b64url(bytes) {
+  let bin = ""; for (const b of bytes) bin += String.fromCharCode(b);
+  const s = typeof btoa === "function" ? btoa(bin) : Buffer.from(bin, "binary").toString("base64");
+  return s.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+function unb64url(s) {
+  const b = s.replace(/-/g, "+").replace(/_/g, "/");
+  const bin = typeof atob === "function" ? atob(b) : Buffer.from(b, "base64").toString("binary");
+  return Uint8Array.from(bin, (c) => c.charCodeAt(0));
+}
+export function encodePaper(paper, bank) {
+  const out = [];
+  const seed = String(paper.seed || "").slice(0, 16);
+  out.push(seed.length); for (const ch of seed) out.push(ch.charCodeAt(0) & 0x7f);
+  for (const c of CATEGORIES) pushVar(out, (paper.targets || {})[c.key] || 0);
+  pushVar(out, paper.entries.length);
+  const idx = itemIndex(bank);
+  for (const e of paper.entries) {
+    const h = fnv32(e.id);
+    out.push(h >>> 24, (h >>> 16) & 255, (h >>> 8) & 255, h & 255);
+    const it = idx[e.id];
+    if (e.parts && it && it.parts) {
+      let mask = 0; it.parts.forEach((p, i) => { if (e.parts.includes(p.k)) mask += 2 ** i; });
+      pushVar(out, mask + 1);
+    } else out.push(0);
+  }
+  return "2" + b64url(out);
+}
+export function decodePaper(code, bank) {
+  code = code.replace(/\s+/g, ""); // codes copied from a PDF may carry line breaks
+  if (code[0] !== "2") return decodePaperV1(code);
+  const buf = unb64url(code.slice(1)), pos = { i: 0 };
+  const sl = buf[pos.i++]; let seed = "";
+  for (let k = 0; k < sl; k++) seed += String.fromCharCode(buf[pos.i++]);
+  const targets = {};
+  for (const c of CATEGORIES) { const v = readVar(buf, pos); if (v) targets[c.key] = v; }
+  const n = readVar(buf, pos), hidx = hashIndex(bank), entries = [], missing = [];
+  for (let k = 0; k < n; k++) {
+    const h = ((buf[pos.i] << 24) | (buf[pos.i + 1] << 16) | (buf[pos.i + 2] << 8) | buf[pos.i + 3]) >>> 0; pos.i += 4;
+    const m = readVar(buf, pos);
+    const it = hidx.get(h);
+    if (!it) { missing.push(h); continue; }
+    let parts = null;
+    if (m && it.parts) { parts = it.parts.filter((p, i) => Math.floor((m - 1) / 2 ** i) % 2 === 1).map((p) => p.k); }
+    entries.push({ id: it.id, parts });
+  }
+  if (pos.i !== buf.length) throw new Error("bad code");
+  return { seed, round: 1, targets, removed: [], entries, missing: missing.length };
+}
+function decodePaperV1(code) {
+  const b = code.replace(/-/g, "+").replace(/_/g, "/");
   const json = typeof atob === "function" ? decodeURIComponent(escape(atob(b))) : Buffer.from(b, "base64").toString();
   const o = JSON.parse(json);
-  return { seed: o.s, round: 1, targets: o.t, removed: [],
+  return { seed: o.s, round: 1, targets: o.t, removed: [], missing: 0,
            entries: o.e.map((x) => (Array.isArray(x) ? { id: x[0], parts: x[1] } : { id: x, parts: null })) };
 }
 
@@ -295,4 +355,24 @@ export function capacity(bank, cat, settings) {
   return bank.items
     .filter((it) => categoryOf(it) === cat && eligible(bank, it, settings))
     .reduce((s, it) => s + it.m, 0);
+}
+
+// Split pasted text into paper codes, re-joining codes that were broken across lines.
+export function splitCodes(text, bank) {
+  const toks = text.split(/\s+/).filter(Boolean);
+  const codes = [], bad = [];
+  let buf = "";
+  for (const t of toks) {
+    buf += t;
+    try {
+      const p = decodePaper(buf, bank);
+      if (p.entries.length && !p.missing) { codes.push(buf); buf = ""; }
+    } catch { /* keep joining */ }
+    if (buf.length > 4000) { bad.push(buf.slice(0, 18)); buf = ""; }
+  }
+  if (buf) {
+    try { const p = decodePaper(buf, bank); if (p.entries.length) codes.push(buf); else bad.push(buf.slice(0, 18)); }
+    catch { bad.push(buf.slice(0, 18)); }
+  }
+  return { codes, bad };
 }

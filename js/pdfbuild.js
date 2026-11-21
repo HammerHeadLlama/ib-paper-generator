@@ -21,7 +21,16 @@ class Layout {
   text(s, size = 10, bold = false, color = rgb(0, 0, 0)) {
     const font = bold ? this.f.bold : this.f.reg;
     const maxW = A4[0] - 2 * M;
-    const words = s.split(" ");
+    const words = [];
+    for (const w of s.split(" ")) { // break very long tokens (paper codes) to fit the line
+      if (font.widthOfTextAtSize(w, size) <= maxW) { words.push(w); continue; }
+      let chunk = "";
+      for (const ch of w) {
+        if (font.widthOfTextAtSize(chunk + ch, size) > maxW) { words.push(chunk); chunk = ""; }
+        chunk += ch;
+      }
+      if (chunk) words.push(chunk);
+    }
     let line = "";
     const lines = [];
     for (const w of words) {
@@ -108,7 +117,7 @@ export async function buildPdfs(bank, paper, getFile, opts = {}) {
   const total = paper.entries.reduce((s, e) => s + entryMarks(idx[e.id], e), 0);
   const booklet = paper.entries.some((e) => idx[e.id].bk);
   const title = opts.title || `${bank.subject} practice paper`;
-  const codeLine = opts.paperId ? `Paper ID: ${opts.paperId}` : "";
+  const codeLine = opts.code ? `Paper code: ${opts.code}` : opts.paperId ? `Paper ID: ${opts.paperId}` : "";
 
   async function make(kind) {
     const doc = await PDFDocument.create();

@@ -12,7 +12,7 @@
 <body>
 <header>
   <h1>IB Past Paper Generator</h1>
-  <p class="sub">Builds practice papers from real past-paper questions, then gives you the question paper and the mark scheme as two PDFs.</p>
+  <p class="sub">Build a practice paper from real past-paper questions. You get the question paper and the mark scheme as two PDFs.</p>
 </header>
 
 <main>
@@ -23,10 +23,10 @@
       <label class="btn primary folder-pick">Choose past-paper folder
         <input id="folder" class="vh" type="file" webkitdirectory directory multiple>
       </label>
-      <div id="drop" class="drop">…or drag the folder here</div>
+      <div id="drop" class="drop">or drag the folder here</div>
     </div>
     <div id="load-status" class="status" role="status" aria-live="polite"></div>
-    <p class="note">Your PDFs stay on your computer: this page reads them in your browser and never uploads them. IB past papers are copyright of the International Baccalaureate, so they are not included here; use the copies your school gives you.</p>
+    <p class="note">Your PDFs stay on your computer. This page reads them in your browser and never uploads them. IB past papers are copyright of the International Baccalaureate, so none are included here. Use the copies your school gives you.</p>
   </section>
 
   <nav class="tabs" role="tablist" aria-label="Ways to build a paper">
@@ -42,9 +42,9 @@
       <h2><span class="num">2</span> Settings</h2>
       <h3>Topics</h3>
       <div class="row small">
-        <button id="t-all" class="btn">Select all</button>
-        <button id="t-none" class="btn">Clear</button>
-        <span class="hint">Ticked topics get a weight: <b>A bit</b> = fewer questions from that topic, <b>A lot</b> = more.</span>
+        <button id="t-all" class="btn">All</button>
+        <button id="t-none" class="btn">None</button>
+        <span class="hint">Weight: <b>A bit</b> = fewer questions from that topic, <b>A lot</b> = more.</span>
       </div>
       <div id="topics" class="topics"></div>
 
@@ -52,7 +52,7 @@
       <div id="mix" class="mix"></div>
       <div class="row">
         <label>Total marks <input id="total" type="number" min="0" value="50"></label>
-        <span class="hint">Changing the total adjusts the paper type ticked as <b>fill the rest</b>.</span>
+        <span class="hint">Changing the total changes the paper type set to <b>fill the rest</b>.</span>
       </div>
 
       <details class="more">
@@ -60,21 +60,21 @@
         <div class="row wrap">
           <label>Years <input id="yfrom" type="number" min="1999" max="2030" aria-label="First year"></label>
           <label>to <input id="yto" type="number" min="1999" max="2030" aria-label="Last year"></label>
-          <span class="hint">(1999 papers are low-quality scans, so the default starts at 2000)</span>
+          <span class="hint">1999 papers are low-quality scans, so the default starts at 2000.</span>
         </div>
         <div class="row wrap">
-          <label><input id="old" type="checkbox" checked> Include questions from older syllabuses</label>
+          <label><input id="old" type="checkbox" checked> Include older syllabuses</label>
           <label>Topic match <select id="share"></select></label>
         </div>
         <div class="row wrap">
-          <label><input id="showsrc" type="checkbox" checked> Show the source (year, paper, question) on the question paper</label>
+          <label><input id="showsrc" type="checkbox" checked> Print the source (year, paper, question) on the question paper</label>
           <label><input id="use-excl" type="checkbox" checked> Skip questions from excluded papers <span id="excl-count" class="hint"></span></label>
         </div>
         <div class="row wrap">
           <label>Random seed <input id="seed" type="text" size="8"></label>
           <button id="reseed" class="btn">New seed</button>
         </div>
-        <p class="hint">Same settings + same seed = the same paper. Whole questions are picked first; stand-alone parts top up the last few marks so each total is exact. See <a href="#" data-goto="how">How it works</a>.</p>
+        <p class="hint">The same settings and seed always give the same paper. Whole questions go in first, then stand-alone parts make each total exact. More in <a href="#" data-goto="how">How it works</a>.</p>
       </details>
       <div class="gen-bar">
         <button id="generate" class="btn primary">Generate paper</button>
@@ -103,9 +103,9 @@
             <label>to <input id="m-mmax" type="number" min="0" placeholder="max" aria-label="Most marks"></label>
           </div>
           <div class="row wrap">
-            <label><input id="m-old" type="checkbox" checked> Older syllabuses</label>
+            <label><input id="m-old" type="checkbox" checked> Include older syllabuses</label>
             <label>Topic match <select id="m-share"></select></label>
-            <label><input id="m-hideused" type="checkbox"> Hide excluded questions</label>
+            <label><input id="m-hideused" type="checkbox"> Hide questions from excluded papers</label>
             <label>Sort <select id="m-sort">
               <option value="new">Newest first</option><option value="old">Oldest first</option>
               <option value="marks">Most marks</option><option value="random">Shuffle</option></select></label>
@@ -116,7 +116,7 @@
         <button id="m-more" class="btn" hidden>Show more</button>
       </section>
       <section class="card right">
-        <h2>Your paper <button id="m-clear" class="btn small">Start a new empty paper</button></h2>
+        <h2>Your paper <button id="m-clear" class="btn small">New empty paper</button></h2>
         <div class="paperpanel" data-mode="manual"></div>
       </section>
     </div>
@@ -125,17 +125,17 @@
   <!-- ============ EXCLUSIONS ============ -->
   <div class="tabpanel" id="tab-exclude" role="tabpanel" aria-labelledby="tabbtn-exclude" hidden>
     <section class="card">
-      <h2>Exclude papers you've already used</h2>
-      <p>Paste the <b>paper code</b> of each paper you've used, one per line. Every question in those papers is then skipped by the generator and marked "used before" in <b>Pick manually</b>. The code is printed at the top of every generated question paper and mark scheme, and <b>Copy paper code</b> gives it too.</p>
+      <h2>Exclude papers you've used</h2>
+      <p>Paste one <b>paper code</b> per line. The generator skips every question in those papers, and <b>Pick manually</b> marks them "used before". The code is at the top of each generated question paper and mark scheme, or use <b>Copy paper code</b>.</p>
       <textarea id="x-input" rows="5" aria-label="Paper codes, one per line" placeholder="2Bks3UTJYWhQ…&#10;2Ak9F…"></textarea>
       <div class="row wrap">
         <label>Label (optional) <input id="x-label" type="text" placeholder="e.g. Mock 1, Sept quiz"></label>
         <button id="x-add" class="btn primary">Add codes</button>
-        <button id="x-add-current" class="btn">Add the current paper</button>
+        <button id="x-add-current" class="btn">Add current paper</button>
       </div>
       <div id="x-msg" class="status" role="status" aria-live="polite"></div>
       <div id="x-list"></div>
-      <p class="hint">Exclusions are saved in this browser. To share them, copy the codes into a document.</p>
+      <p class="hint">Saved in this browser only. To share the list, copy the codes into a document.</p>
     </section>
   </div>
 
@@ -143,10 +143,10 @@
   <div class="tabpanel" id="tab-how" role="tabpanel" aria-labelledby="tabbtn-how" hidden>
     <section class="card prose">
       <h2>How the random picker works</h2>
-      <p>Every question in the bank carries a record: year, session, time zone, paper, question number, marks, which syllabus subtopics each part covers, which parts depend on earlier parts, whether the data booklet is needed, and where the question and its mark scheme sit on the original pages. The picker works only with these records; the question itself is cropped from your own PDFs at the end.</p>
+      <p>Each question in the bank has a record: year, session, time zone, paper, question number, marks, which syllabus subtopics each part covers, which parts depend on earlier parts, whether it needs the data booklet, and where the question and its mark scheme are on the original pages. The picker only uses these records. The question itself is cropped from your own PDFs at the end.</p>
 
       <h3>1. Which questions can be picked</h3>
-      <p>A question is <b>eligible</b> when all of these hold:</p>
+      <p>A question can be picked when all of these are true:</p>
       <ul>
         <li>its year is inside your year range, and it's from the current syllabus unless you allow older ones;</li>
         <li>you loaded the paper it comes from (if you loaded a folder);</li>
@@ -155,7 +155,7 @@
       </ul>
 
       <h3>2. Weighting</h3>
-      <p>Each eligible question gets a weight from your topic weights (<i>A bit</i> 0.3, <i>Normal</i> 1, <i>A lot</i> 2.5), averaged over its parts by marks. Questions are then put in a random order where heavier ones tend to come first (weighted random sampling). The order differs every time, so questions mix freely across years.</p>
+      <p>Each question that can be picked gets a weight from your topic weights (<i>A bit</i> 0.3, <i>Normal</i> 1, <i>A lot</i> 2.5), averaged over its parts by marks. Questions then go into a random order where heavier ones tend to come first (weighted random sampling). The order differs every time, so questions mix freely across years.</p>
 
       <h3>3. Hitting the marks exactly</h3>
       <ul>

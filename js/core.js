@@ -283,7 +283,7 @@ export function loadCodePrompt() {
 }
 async function download(kind, btn) {
   const label = btn.textContent;
-  btn.disabled = true; btn.textContent = "Building PDF…";
+  btn.disabled = true; btn.textContent = "Building PDF…"; btn.setAttribute("aria-busy", "true");
   try {
     const p = state.paper;
     const code = G.encodePaper(p, state.bank);
@@ -304,6 +304,6 @@ async function download(kind, btn) {
   } catch (err) {
     alert("Could not build the PDF: " + err.message);
   } finally {
-    btn.disabled = false; btn.textContent = label;
+    btn.disabled = false; btn.textContent = label; btn.removeAttribute("aria-busy");
   }
 }

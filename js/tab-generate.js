@@ -116,5 +116,5 @@ function generate() {
   state.settings = s;
   state.paper = G.generate(state.bank, s);
   changed();
-  $("gen-review").scrollIntoView({ behavior: "smooth" });
+  $("gen-review").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
 }

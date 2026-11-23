@@ -92,7 +92,6 @@ body {
 ::selection { background: var(--select); color: var(--ink); }
 :focus-visible { outline: var(--focus-ring); outline-offset: var(--focus-offset); }
 a { color: var(--accent); text-underline-offset: 2px; }
-a:hover { color: var(--accent-hover); }
 h1, h2, h3 { font-family: var(--font-serif); line-height: var(--leading-tight); text-wrap: balance; }
 h1 { margin: 0 0 var(--space-2); font-size: var(--text-h1); font-weight: var(--weight-bold); letter-spacing: -0.01em; }
 h2 { margin: 0 0 var(--space-4); font-size: var(--text-h2); font-weight: var(--weight-semibold); display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
@@ -137,12 +136,11 @@ input::placeholder, textarea::placeholder { color: var(--ink-muted); opacity: 1;
   font: inherit; font-family: var(--font-ui); font-size: var(--text-ui); font-weight: var(--weight-regular); line-height: var(--leading-ui); white-space: nowrap;
   color: var(--ink); background: var(--paper); border: var(--rule-w) solid var(--field); border-radius: var(--radius); cursor: pointer;
 }
-.btn:hover { background: var(--paper-sunk); border-color: var(--ink); }
 .btn.primary { background: var(--accent); color: var(--on-accent); border-color: var(--accent); font-weight: var(--weight-bold); }
-.btn.primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
 .btn.small { min-height: var(--control-h-sm); padding: var(--space-1) var(--space-3); font-size: var(--text-hint); }
-.btn:disabled, .btn:disabled:hover { opacity: .45; cursor: default; background: var(--paper); border-color: var(--field); }
+.btn:disabled { opacity: .45; cursor: default; }
 .btn.primary:disabled { background: var(--accent); border-color: var(--accent); }
+.btn.primary:disabled:hover { background: var(--accent); border-color: var(--accent); }
 .folder-pick:focus-within { outline: var(--focus-ring); outline-offset: var(--focus-offset); }
 
 .hint, .note { color: var(--ink-muted); font-size: var(--text-hint); line-height: var(--leading-ui); }
@@ -165,7 +163,6 @@ input::placeholder, textarea::placeholder { color: var(--ink-muted); opacity: 1;
   font: inherit; font-size: var(--text-ui); color: var(--ink-muted); background: none; cursor: pointer;
   border: var(--rule-w) solid transparent; border-bottom: none; border-radius: var(--radius) var(--radius) 0 0;
 }
-.tab:hover { color: var(--ink); }
 .tab:focus-visible { outline-offset: -2px; }
 .tab.active { background: var(--paper); border-color: var(--rule); color: var(--ink); font-weight: var(--weight-bold); margin-bottom: -1px; box-shadow: inset 0 2px 0 var(--ink); }
 .tab .pill { margin-left: var(--space-1); }
@@ -175,7 +172,6 @@ input::placeholder, textarea::placeholder { color: var(--ink-muted); opacity: 1;
 /* ---------- generate: settings ---------- */
 .topics { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 0 var(--space-4); }
 .topic { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); min-height: 40px; padding: var(--space-1) var(--space-2); border-bottom: var(--rule-w) solid var(--rule); }
-.topic:hover { background: var(--paper-sunk); }
 .topic label { display: grid; grid-template-columns: var(--check) 3.2em minmax(0, 1fr); column-gap: var(--space-2); align-items: baseline; }
 .topic label input { align-self: center; }
 .topic label b { font-variant-numeric: tabular-nums; }
@@ -195,7 +191,6 @@ input::placeholder, textarea::placeholder { color: var(--ink-muted); opacity: 1;
 .more > summary::before { content: ""; align-self: center; width: 7px; height: 7px; margin: 0 var(--space-1); border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(-45deg); }
 .more[open] > summary::before { transform: rotate(45deg); }
 .more > summary .hint { font-weight: var(--weight-regular); }
-.more > summary:hover { color: var(--accent); }
 #seed { font-family: var(--font-mono); width: 9ch; text-transform: uppercase; }
 .gen-bar {
   position: sticky; bottom: 0; z-index: 2; display: flex; align-items: center; gap: var(--space-3);
@@ -212,13 +207,10 @@ input::placeholder, textarea::placeholder { color: var(--ink-muted); opacity: 1;
 .tot b { color: var(--ink); }
 .paperpanel > .row { gap: var(--space-2); }
 .paperpanel [data-pact="dl-q"], .paperpanel [data-pact="dl-ms"] { background: var(--accent); color: var(--on-accent); border-color: var(--accent); font-weight: var(--weight-bold); }
-.paperpanel [data-pact="dl-q"]:hover:not(:disabled), .paperpanel [data-pact="dl-ms"]:hover:not(:disabled) { background: var(--accent-hover); border-color: var(--accent-hover); }
 .paperpanel [data-pact="fill"] { background: var(--paper); color: var(--accent); border-color: var(--accent); font-weight: var(--weight-bold); }
-.paperpanel [data-pact="fill"]:hover { background: var(--accent-tint); }
 .paperpanel [data-pact="fill"]:disabled { display: none; }
 .paperpanel [data-pact="copy"] { margin-left: auto; }
 .paperpanel [data-pact="copy"], .paperpanel [data-pact="load"], .paperpanel [data-pact="sort"] { min-height: var(--control-h-sm); padding: var(--space-1) var(--space-3); font-size: var(--text-hint); color: var(--ink-muted); border-color: var(--rule); }
-.paperpanel [data-pact="copy"]:hover, .paperpanel [data-pact="load"]:hover, .paperpanel [data-pact="sort"]:hover { color: var(--ink); border-color: var(--field); }
 .paperpanel > .hint { max-width: var(--measure); }
 .dl-msg { margin: var(--space-1) 0 0; font-size: var(--text-hint); color: var(--ok); }
 .dl-msg:empty { display: none; }
@@ -239,7 +231,6 @@ input::placeholder, textarea::placeholder { color: var(--ink-muted); opacity: 1;
 .parts label:has(input:checked) { background: var(--accent-tint); border-color: var(--accent); }
 .actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
 .actions [data-pact="up"], .actions [data-pact="down"] { min-width: 34px; padding: 0; }
-.actions [data-pact="remove"]:hover { color: var(--danger); border-color: var(--danger); background: var(--danger-tint); }
 
 .thumb { cursor: zoom-in; }
 .entry .thumb, .thumb.small {
@@ -248,7 +239,6 @@ input::placeholder, textarea::placeholder { color: var(--ink-muted); opacity: 1;
   color: var(--ink-muted); font-size: var(--text-caption);
 }
 .entry .thumb { width: var(--thumb-w); min-height: 64px; max-height: 260px; }
-.entry .thumb:hover, .thumb.small:hover { border-color: var(--field); }
 .thumb canvas { display: block; width: 100%; height: auto; }
 
 /* ---------- question viewer ---------- */
@@ -269,7 +259,6 @@ main:has(#tab-manual:not([hidden])), header:has(~ main #tab-manual:not([hidden])
 .filters > div:not([class]) { display: flex; align-items: center; gap: var(--space-2); margin-top: var(--space-2); font-size: var(--text-ui); }
 .filters > div:not([class]):first-child { margin-top: 0; }
 #m-clear { margin-left: auto; color: var(--ink-muted); border-color: var(--rule); }
-#m-clear:hover { color: var(--danger); border-color: var(--danger); background: var(--danger-tint); }
 #m-count { margin-bottom: var(--space-1); font-variant-numeric: tabular-nums; }
 #m-more { margin-top: var(--space-4); width: 100%; }
 .chipselect { display: flex; flex-wrap: wrap; gap: var(--space-1); }
@@ -280,7 +269,6 @@ main:has(#tab-manual:not([hidden])), header:has(~ main #tab-manual:not([hidden])
 .result.in { background: var(--ok-tint); }
 .result .add { font-size: var(--text-hint); font-weight: var(--weight-bold); min-height: var(--control-h); align-self: start; }
 .result.in .add { color: var(--ok); }
-.result:hover:not(.in) { background: var(--paper-sunk); }
 .result .top { display: flex; gap: var(--space-2); flex-wrap: wrap; align-items: baseline; margin-bottom: var(--space-1); }
 .result .meta { display: flex; flex-direction: column; gap: var(--space-1); align-items: flex-start; min-width: 0; }
 .src2 { font-weight: var(--weight-bold); font-size: var(--text-hint); }
@@ -303,8 +291,6 @@ textarea { display: block; width: 100%; padding: var(--space-2) var(--space-3); 
 .xtable td { font-variant-numeric: tabular-nums; white-space: nowrap; }
 .xtable td:first-child, .xtable th:first-child { width: 2.5em; color: var(--ink-muted); }
 .xtable td:last-child { text-align: right; }
-.xtable tbody tr:hover { background: var(--paper-sunk); }
-.xtable [data-xdel]:hover { color: var(--danger); border-color: var(--danger); background: var(--danger-tint); }
 .xtable td.code { font-family: var(--font-mono); font-size: var(--text-caption); color: var(--ink-muted); }
 
 /* ---------- how it works ---------- */
@@ -337,4 +323,53 @@ textarea { display: block; width: 100%; padding: var(--space-2) var(--space-3); 
   .modal-body { padding: var(--space-4); }
   .xtable { min-width: 520px; }
 }
-@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+/* ---------- interaction ----------
+   Colour changes fade quickly; presses give instant scale feedback; nothing else moves.
+   Hover styles apply only to real pointers so taps on phones don't leave things "stuck" hovered. */
+.btn, .tab, input, select, textarea, .chipbox, .parts label, .topic, .result, .more > summary, .thumb, a {
+  transition: background-color var(--dur-fast) ease, border-color var(--dur-fast) ease, color var(--dur-fast) ease, transform var(--dur-fast) var(--ease-out);
+}
+.btn, .tab, .chipbox, .parts label, .more > summary, .folder-pick { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+.btn:active:not(:disabled), .chipbox:active, .parts label:active { transform: scale(0.97); }
+.tab:active { color: var(--ink); }
+.more > summary::before { transition: transform var(--dur-fast) var(--ease-out); }
+input[type=checkbox], input[type=radio], .chipbox, .parts label, .topic label, .result .add, .more > summary { cursor: pointer; }
+
+/* PDF build in progress: the download button the JS marks aria-busy */
+.btn[aria-busy="true"], .btn[aria-busy="true"]:disabled { opacity: 1; cursor: progress; }
+.btn[aria-busy="true"]::before {
+  content: ""; width: 14px; height: 14px; flex: none; border-radius: 50%;
+  border: 2px solid currentColor; border-right-color: transparent;
+  animation: spin 600ms linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes pulse { 50% { opacity: .35; } }
+
+@media (hover: hover) and (pointer: fine) {
+  input:hover, select:hover, textarea:hover { border-color: var(--ink); }
+  a:hover { color: var(--accent-hover); }
+  .btn:hover { background: var(--paper-sunk); border-color: var(--ink); }
+  .btn.primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+  .btn:disabled:hover { background: var(--paper); border-color: var(--field); }
+  .tab:hover { color: var(--ink); }
+  .topic:hover { background: var(--paper-sunk); }
+  .more > summary:hover { color: var(--accent); }
+  .paperpanel [data-pact="dl-q"]:hover:not(:disabled), .paperpanel [data-pact="dl-ms"]:hover:not(:disabled) { background: var(--accent-hover); border-color: var(--accent-hover); }
+  .paperpanel [data-pact="fill"]:hover { background: var(--accent-tint); }
+  .paperpanel [data-pact="copy"]:hover, .paperpanel [data-pact="load"]:hover, .paperpanel [data-pact="sort"]:hover { color: var(--ink); border-color: var(--field); }
+  .actions [data-pact="remove"]:hover { color: var(--danger); border-color: var(--danger); background: var(--danger-tint); }
+  .entry .thumb:hover, .thumb.small:hover { border-color: var(--field); }
+  #m-clear:hover { color: var(--danger); border-color: var(--danger); background: var(--danger-tint); }
+  .result:hover:not(.in) { background: var(--paper-sunk); }
+  .xtable tbody tr:hover { background: var(--paper-sunk); }
+  .xtable [data-xdel]:hover { color: var(--danger); border-color: var(--danger); background: var(--danger-tint); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  /* keep colour fades, drop movement */
+  .btn, .tab, input, select, textarea, .chipbox, .parts label, .topic, .result, .more > summary, .thumb, a { transition-property: background-color, border-color, color; }
+  .btn:active:not(:disabled), .chipbox:active, .parts label:active { transform: none; }
+  .more > summary::before { transition: none; }
+  .btn[aria-busy="true"]::before { animation: pulse 1.2s ease-in-out infinite; }
+}

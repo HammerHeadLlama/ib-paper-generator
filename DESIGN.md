@@ -93,7 +93,7 @@ Copy this block to the top of `css/style.css`. Components use these names, never
   /* layout */
   --page-max:      1100px;
   --page-max-wide: 1440px;  /* Pick manually split view */
-  --measure:       72ch;    /* prose line length */
+  --measure:       54ch;    /* prose line length: about 75 characters in Atkinson Hyperlegible */
   --tap-min:       44px;    /* touch target on phones */
 }
 ```

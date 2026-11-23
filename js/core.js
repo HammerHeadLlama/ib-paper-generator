@@ -291,7 +291,7 @@ async function download(kind, btn) {
       const f = state.files.get(fi);
       if (!f) throw new Error("Missing paper file: " + state.bank.files[fi].path);
       return new Uint8Array(await f.arrayBuffer());
-    }, { showSource: $("showsrc").checked, code });
+    }, { showSource: btn.closest('.paperpanel[data-mode="manual"]') ? $("m-showsrc").checked : $("showsrc").checked, code });
     const bytes = kind === "q" ? out.questions : out.markscheme;
     const stamp = p.seed === "MANUAL" ? "manual" : `${p.seed}-r${p.round}`;
     const a = document.createElement("a");

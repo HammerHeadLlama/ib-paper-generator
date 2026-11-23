@@ -262,6 +262,7 @@ main:has(#tab-manual:not([hidden])), header:has(~ main #tab-manual:not([hidden])
 .filters > div:not([class]):first-child { margin-top: 0; }
 #m-clear { margin-left: auto; color: var(--ink-muted); border-color: var(--rule); }
 #m-count { margin-bottom: var(--space-1); font-variant-numeric: tabular-nums; }
+.paper-opt { margin: 0 0 var(--space-3); }
 #m-more { margin-top: var(--space-4); width: 100%; }
 .chipselect { display: flex; flex-wrap: wrap; gap: var(--space-1); }
 .chipbox { gap: var(--space-1); font-size: var(--text-hint); border: var(--rule-w) solid var(--rule); border-radius: var(--radius); padding: var(--space-1) var(--space-2); background: var(--paper); cursor: pointer; }

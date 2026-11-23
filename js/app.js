@@ -54,6 +54,7 @@ async function init() {
   });
   document.querySelectorAll("[data-goto]").forEach((a) => (a.onclick = (e) => { e.preventDefault(); showTab(a.dataset.goto); }));
   $("folder").onchange = (e) => indexFiles([...e.target.files]);
+  $("files").onchange = (e) => indexFiles([...e.target.files]);
   const drop = $("drop");
   drop.ondragover = (e) => { e.preventDefault(); drop.classList.add("over"); };
   drop.ondragleave = () => drop.classList.remove("over");
@@ -71,6 +72,7 @@ async function init() {
   initExclude();
   onChange(refresh);
   await loadBank(state.subjects[0].id);
+  window.appReady = true;
 }
 
-init();
+init().catch((err) => window.bootFail && window.bootFail(err));

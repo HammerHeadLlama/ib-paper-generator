@@ -154,7 +154,8 @@ input::placeholder, textarea::placeholder { color: var(--ink-muted); opacity: 1;
 /* ---------- load card ---------- */
 .drop { border: var(--rule-strong) dashed var(--field); border-radius: var(--radius); padding: var(--space-2) var(--space-4); min-height: var(--control-h); display: flex; align-items: center; color: var(--ink-muted); font-size: var(--text-ui); }
 .drop.over { border-color: var(--accent); color: var(--accent); background: var(--accent-tint); }
-@media (hover: none) and (pointer: coarse) { .drop { display: none; } }
+.files-pick { display: none; }
+@media (hover: none) and (pointer: coarse) { .drop { display: none; } .files-pick { display: inline-flex; } }
 
 /* ---------- tabs ---------- */
 .tabs { display: flex; gap: var(--space-1); margin: var(--space-6) 0 0; border-bottom: var(--rule-w) solid var(--rule); overflow-x: auto; scrollbar-width: none; }

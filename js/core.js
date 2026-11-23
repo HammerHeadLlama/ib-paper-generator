@@ -1,9 +1,15 @@
 // Shared state and UI pieces used by every tab.
 import * as G from "./generator.js";
-import { buildPdfs } from "./pdfbuild.js";
-import * as pdfjsLib from "../vendor/pdf.min.mjs";
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = new URL("../vendor/pdf.worker.min.mjs", import.meta.url).href;
+// pdf.js and the PDF builder are large; load them on first use so the page starts fast (and starts at all if one of them fails)
+let pdfjsReady = null;
+function loadPdfjs() {
+  pdfjsReady ??= import("../vendor/pdf.min.mjs").then((m) => {
+    m.GlobalWorkerOptions.workerSrc = new URL("../vendor/pdf.worker.min.mjs", import.meta.url).href;
+    return m;
+  });
+  return pdfjsReady;
+}
 
 export const $ = (id) => document.getElementById(id);
 export const state = {
@@ -88,7 +94,7 @@ async function pdfjsDoc(fi) {
   if (!state.pdfjs.has(fi)) {
     const f = state.files.get(fi);
     if (!f) return null;
-    state.pdfjs.set(fi, f.arrayBuffer().then((buf) => pdfjsLib.getDocument({ data: new Uint8Array(buf) }).promise));
+    state.pdfjs.set(fi, Promise.all([f.arrayBuffer(), loadPdfjs()]).then(([buf, pdfjsLib]) => pdfjsLib.getDocument({ data: new Uint8Array(buf) }).promise));
   }
   return state.pdfjs.get(fi);
 }
@@ -287,6 +293,7 @@ async function download(kind, btn) {
   try {
     const p = state.paper;
     const code = G.encodePaper(p, state.bank);
+    const { buildPdfs } = await import("./pdfbuild.js");
     const out = await buildPdfs(state.bank, p, async (fi) => {
       const f = state.files.get(fi);
       if (!f) throw new Error("Missing paper file: " + state.bank.files[fi].path);

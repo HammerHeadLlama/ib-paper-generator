@@ -23,6 +23,9 @@
       <label class="btn primary folder-pick">Choose past-paper folder
         <input id="folder" class="vh" type="file" webkitdirectory directory multiple>
       </label>
+      <label class="btn files-pick">Choose PDF files
+        <input id="files" class="vh" type="file" accept=".pdf,application/pdf" multiple>
+      </label>
       <div id="drop" class="drop">or drag the folder here</div>
     </div>
     <div id="load-status" class="status" role="status" aria-live="polite"></div>
@@ -180,6 +183,23 @@
 
 <div id="modal" class="modal" role="dialog" aria-modal="true" aria-label="Question and mark scheme" hidden><div class="modal-body"><button id="modal-close" class="btn">Close</button><div id="modal-content"></div></div></div>
 <footer>Questions, mark schemes and diagrams come from your own copies of IB past papers. This tool only records where each question is and which syllabus topics it covers.</footer>
-<script type="module" src="js/app.js"></script>
+<script>
+  // If the app's scripts fail to start (no console on phones), say why on the page.
+  window.bootFail = function (err) {
+    if (window.appReady) return;
+    var s = document.getElementById("load-status");
+    if (!s) return;
+    var msg = (err && (err.message || (err.reason && err.reason.message))) || String(err);
+    var esc = function (t) { return String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;"); };
+    s.innerHTML = '<span class="warn">The page couldn\'t start: ' + esc(msg) + '. Try reloading.</span><br><span class="hint">' + esc(navigator.userAgent) + "</span>";
+  };
+  window.addEventListener("error", function (e) {
+    if (e.target && e.target !== window && e.target.tagName !== "SCRIPT") return; // ignore images, fonts, stylesheets
+    window.bootFail(e.error || e.message || "a script didn't load");
+  }, true);
+  window.addEventListener("unhandledrejection", function (e) { window.bootFail(e.reason); });
+  setTimeout(function () { if (!window.appReady) window.bootFail("still loading after 20 seconds"); }, 20000);
+</script>
+<script type="module" src="js/app.js" onerror="bootFail('js/app.js did not load')"></script>
 </body>
 </html>

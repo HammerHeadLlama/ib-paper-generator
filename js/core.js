@@ -40,11 +40,11 @@ export function setLoadStatus(progress) {
   const b = state.bank;
   if (progress) { $("load-status").innerHTML = progress; return; }
   const got = state.files.size;
-  if (!got) { $("load-status").innerHTML = `<span class="warn">No papers loaded yet.</span> You can still build and review a paper; previews and PDF downloads need the folder.`; return; }
+  if (!got) { $("load-status").innerHTML = `<span class="warn">No papers loaded yet.</span> You can still build and review a paper, but previews and PDF downloads need the folder.`; return; }
   const papers = new Set(b.items.map((i) => i.qf));
   const missing = [...papers].filter((fi) => !state.files.has(fi)).length;
   $("load-status").innerHTML = `<span class="ok">Matched ${got} of ${b.files.length} files.</span>` +
-    (missing ? ` <span class="warn">${missing} question papers are missing; their questions are skipped.</span>` : "");
+    (missing ? ` <span class="warn">${missing} question papers are missing, so their questions are skipped.</span>` : "");
 }
 async function sha256(file) {
   const h = await crypto.subtle.digest("SHA-256", await file.arrayBuffer());
@@ -138,7 +138,7 @@ export function observeThumbs(root) {
         let h = 0;
         for (const r of questionRegions(it, e && e.id === it.id ? e : null)) {
           const cv = await renderRegion(it.qf, r, 0.6);
-          if (!cv) { en.target.textContent = "paper not loaded"; break; }
+          if (!cv) { en.target.textContent = "This paper isn't in your folder"; break; }
           en.target.appendChild(cv);
           h += r[4] - r[2];
           if (h > 260) break;
@@ -202,7 +202,7 @@ export function renderPaperPanel(container, mode) {
       <button class="btn" data-pact="sort" ${p.entries.length > 1 ? "" : "disabled"}>Sort by paper type</button>
     </div>
     <p class="dl-msg" role="status" aria-live="polite"></p>`;
-  if (mode === "generate") html += `<p class="hint">Remove or replace any question, or untick parts to keep only some of a question (parts it depends on stay in). Then <b>Fill the gaps</b> brings each paper type back to its marks with new questions. Removed questions never come back.</p>`;
+  if (mode === "generate") html += `<p class="hint">Remove or replace questions, or untick parts you don't want. Parts that a kept part depends on stay in. Then <b>Fill the gaps</b> tops each paper type back up with new questions. Removed questions don't come back.</p>`;
   const excl = excludedIds();
   let last = null;
   p.entries.forEach((e, i) => {
@@ -215,7 +215,7 @@ export function renderPaperPanel(container, mode) {
     const topics = it.parts ? [...new Set(it.parts.filter((x) => keep.includes(x.k)).flatMap((x) => x.t))] : it.t;
     const parts = it.parts && !it.mcq ? `<div class="parts">${it.parts.map((x) => `<label title="${esc(x.t.join(", "))}${x.n && x.n.length ? " | needs " + x.n.join(", ") : ""}"><input type="checkbox" data-part="${i}" value="${esc(x.k)}" ${keep.includes(x.k) ? "checked" : ""}> (${esc(x.k.replace(/^P/, "Part "))}) ${x.m}m</label>`).join("")}</div>` : "";
     const m = G.entryMarks(it, e);
-    html += `<div class="entry"><div class="thumb" data-thumb-id="${esc(it.id)}" data-thumb-entry="${i}" data-pact="view" data-i="${i}" aria-hidden="true">${state.files.size ? "loading…" : "load folder to preview"}</div>
+    html += `<div class="entry"><div class="thumb" data-thumb-id="${esc(it.id)}" data-thumb-entry="${i}" data-pact="view" data-i="${i}" aria-hidden="true">${state.files.size ? "loading…" : "Load your folder to see a preview"}</div>
       <div class="meta"><div class="top"><span class="qn">Question ${i + 1}</span><span>[${m} mark${m === 1 ? "" : "s"}]</span><span class="src">${esc(G.sourceLabel(it, e))}${it.bk ? " | data booklet" : ""}</span>${excl.has(it.id) ? '<span class="flag">used before</span>' : ""}</div>
       <div class="chips">${chips(topics)}</div>${parts}
       <div class="actions">
@@ -237,7 +237,7 @@ export function wirePaperPanel(container) {
     if (act === "remove") { G.removeEntry(p, i); changed(); }
     else if (act === "replace") {
       const s = { ...state.settings, excludeIds: currentExcludeSet() };
-      if (!G.replaceEntry(state.bank, p, i, s)) alert('No other question with the same marks fits these settings. The gap is left open: press "Fill the gaps" to fill it.');
+      if (!G.replaceEntry(state.bank, p, i, s)) alert('No other question with the same marks fits these settings. The gap stays open; press "Fill the gaps" to fill it.');
       changed();
     } else if (act === "up" && i > 0) { [p.entries[i - 1], p.entries[i]] = [p.entries[i], p.entries[i - 1]]; changed(); }
     else if (act === "down" && i < p.entries.length - 1) { [p.entries[i + 1], p.entries[i]] = [p.entries[i], p.entries[i + 1]]; changed(); }
@@ -247,7 +247,7 @@ export function wirePaperPanel(container) {
       const n = G.fillGaps(state.bank, p, s);
       changed();
       const short = Object.entries(G.gaps(state.bank, p)).filter(([, v]) => v > 0);
-      if (!n || short.length) alert(short.length ? `Could not fill everything: ${short.map(([k, v]) => `${k} ${v} short`).join(", ")}. Not enough unused questions match these settings.` : "Nothing to fill.");
+      if (!n || short.length) alert(short.length ? `Couldn't fill everything: ${short.map(([k, v]) => `${k} ${v} short`).join(", ")}. Not enough unused questions match these settings. Try more topics, a wider year range or a looser topic match in More options.` : "Nothing to fill.");
     } else if (act === "sort") { G.sortByCategory(state.bank, p); changed(); }
     else if (act === "copy") {
       const code = G.encodePaper(p, state.bank);
@@ -302,7 +302,7 @@ async function download(kind, btn) {
     const msg = btn.closest(".paperpanel")?.querySelector(".dl-msg");
     if (msg) msg.textContent = `Saved ${a.download} to your downloads.`;
   } catch (err) {
-    alert("Could not build the PDF: " + err.message);
+    alert("Couldn't build the PDF: " + err.message);
   } finally {
     btn.disabled = false; btn.textContent = label; btn.removeAttribute("aria-busy");
   }

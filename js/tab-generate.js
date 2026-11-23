@@ -56,7 +56,7 @@ function renderTopics() {
     const on = saved ? saved[t.code] > 0 : true;
     const w = saved && saved[t.code] > 0 ? Object.keys(WEIGHTS).find((k) => WEIGHTS[k] === saved[t.code]) || "Normal" : "Normal";
     return `<div class="topic"><label><input type="checkbox" data-t="${t.code}" ${on ? "checked" : ""}> <b>${t.code}</b> ${t.name}</label>
-      <select data-w="${t.code}">${Object.keys(WEIGHTS).map((k) => `<option ${k === w ? "selected" : ""}>${k}</option>`).join("")}</select></div>`;
+      <select data-w="${t.code}" aria-label="Weight for ${t.code} ${t.name}">${Object.keys(WEIGHTS).map((k) => `<option ${k === w ? "selected" : ""}>${k}</option>`).join("")}</select></div>`;
   }).join("");
 }
 function topicsChanged() { store.set("topics:" + state.subjectId, readTopics()); renderMix(); }
@@ -91,8 +91,8 @@ function renderMix() {
     const cap = G.capacity(state.bank, c.key, s);
     const v = prev[c.key] ?? saved[c.key] ?? 0;
     return `<div class="mixbox"><div><b>${c.label}</b></div>
-      <div class="row"><label>Marks <input data-mix="${c.key}" type="number" min="0" value="${v}"></label>
-      <label title="Typing a total changes this box"><input type="radio" name="rest" value="${c.key}" ${rest === c.key ? "checked" : ""}> fill the rest</label></div>
+      <div class="row"><label>Marks <input data-mix="${c.key}" aria-label="Marks for ${c.label}" type="number" min="0" value="${v}"></label>
+      <label title="Typing a total changes this box"><input type="radio" name="rest" value="${c.key}" aria-label="${c.label} fills the rest" ${rest === c.key ? "checked" : ""}> fill the rest</label></div>
       <div class="cap">${cap} marks available with these settings${c.key === "MCQ" ? " (1 mark each)" : ""}</div></div>`;
   }).join("");
   updateTotal();
@@ -116,5 +116,5 @@ function generate() {
   state.settings = s;
   state.paper = G.generate(state.bank, s);
   changed();
-  $("gen-review").scrollIntoView({ behavior: "smooth" });
+  $("gen-review").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
 }

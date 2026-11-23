@@ -100,8 +100,8 @@ function renderResults() {
   $("m-count").textContent = `${list.length} questions match (${marks} marks).${state.files.size ? "" : " Load your folder to see previews."}`;
   $("m-results").innerHTML = list.slice(0, shown).map((it) => `
     <div class="result ${inPaper.has(it.id) ? "in" : ""}">
-      <label class="add"><input type="checkbox" data-add="${esc(it.id)}" ${inPaper.has(it.id) ? "checked" : ""}> Add</label>
-      <div class="thumb small" data-thumb-id="${esc(it.id)}" data-view="${esc(it.id)}">${state.files.size ? "loading…" : ""}</div>
+      <label class="add"><input type="checkbox" data-add="${esc(it.id)}" ${inPaper.has(it.id) ? "checked" : ""} aria-label="Add ${esc(G.sourceLabel(it, { id: it.id, parts: null }))}"> Add</label>
+      <div class="thumb small" data-thumb-id="${esc(it.id)}" data-view="${esc(it.id)}" aria-hidden="true">${state.files.size ? "loading…" : ""}</div>
       <div class="meta">
         <div class="top"><span class="src2">${esc(G.sourceLabel(it, { id: it.id, parts: null }))}</span><span>[${it.m} mark${it.m === 1 ? "" : "s"}]</span>
           ${it.bk ? '<span class="hint">data booklet</span>' : ""}${excl.has(it.id) ? '<span class="flag">used before</span>' : ""}</div>

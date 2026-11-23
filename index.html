@@ -17,31 +17,31 @@
     <h2><span class="num">1</span> Load your past papers</h2>
     <div class="row wrap">
       <label>Subject <select id="subject"></select></label>
-      <label class="btn primary">Choose past-paper folder
-        <input id="folder" type="file" webkitdirectory directory multiple hidden>
+      <label class="btn primary folder-pick">Choose past-paper folder
+        <input id="folder" class="vh" type="file" webkitdirectory directory multiple>
       </label>
       <div id="drop" class="drop">…or drag the folder here</div>
     </div>
-    <div id="load-status" class="status"></div>
+    <div id="load-status" class="status" role="status" aria-live="polite"></div>
     <p class="note">Your PDFs stay on your computer: this page reads them in your browser and never uploads them. IB past papers are copyright of the International Baccalaureate, so they are not included here; use the copies your school gives you.</p>
   </section>
 
-  <nav class="tabs" role="tablist">
-    <button class="tab active" data-tab="generate" role="tab">Generate</button>
-    <button class="tab" data-tab="manual" role="tab">Pick manually</button>
-    <button class="tab" data-tab="exclude" role="tab">Exclusions <span id="excl-badge" class="pill" hidden></span></button>
-    <button class="tab" data-tab="how" role="tab">How it works</button>
+  <nav class="tabs" role="tablist" aria-label="Ways to build a paper">
+    <button class="tab active" data-tab="generate" role="tab" id="tabbtn-generate" aria-controls="tab-generate">Generate</button>
+    <button class="tab" data-tab="manual" role="tab" id="tabbtn-manual" aria-controls="tab-manual">Pick manually</button>
+    <button class="tab" data-tab="exclude" role="tab" id="tabbtn-exclude" aria-controls="tab-exclude">Exclusions <span id="excl-badge" class="pill" hidden></span></button>
+    <button class="tab" data-tab="how" role="tab" id="tabbtn-how" aria-controls="tab-how">How it works</button>
   </nav>
 
   <!-- ============ GENERATE ============ -->
-  <div class="tabpanel" id="tab-generate">
+  <div class="tabpanel" id="tab-generate" role="tabpanel" aria-labelledby="tabbtn-generate">
     <section class="card">
       <h2><span class="num">2</span> Settings</h2>
       <h3>Topics</h3>
       <div class="row small">
         <button id="t-all" class="btn">Select all</button>
         <button id="t-none" class="btn">Clear</button>
-        <span class="hint">Weight: <b>A bit</b> = fewer questions from that topic, <b>A lot</b> = more.</span>
+        <span class="hint">Ticked topics get a weight: <b>A bit</b> = fewer questions from that topic, <b>A lot</b> = more.</span>
       </div>
       <div id="topics" class="topics"></div>
 
@@ -52,25 +52,30 @@
         <span class="hint">Changing the total adjusts the paper type ticked as <b>fill the rest</b>.</span>
       </div>
 
-      <h3>Options</h3>
-      <div class="row wrap">
-        <label>Years <input id="yfrom" type="number" min="1999" max="2030"> to <input id="yto" type="number" min="1999" max="2030"></label>
-        <span class="hint">(1999 papers are low-quality scans, so the default starts at 2000)</span>
-      </div>
-      <div class="row wrap">
-        <label><input id="old" type="checkbox" checked> Include questions from older syllabuses</label>
-        <label>Topic match <select id="share"></select></label>
-      </div>
-      <div class="row wrap">
-        <label><input id="showsrc" type="checkbox" checked> Show the source (year, paper, question) on the question paper</label>
-        <label><input id="use-excl" type="checkbox" checked> Skip questions from excluded papers <span id="excl-count" class="hint"></span></label>
-      </div>
-      <div class="row">
-        <label>Random seed <input id="seed" type="text" size="8"></label>
-        <button id="reseed" class="btn">New seed</button>
+      <details class="more">
+        <summary>More options <span class="hint">years, older syllabuses, topic match, source, exclusions, seed</span></summary>
+        <div class="row wrap">
+          <label>Years <input id="yfrom" type="number" min="1999" max="2030" aria-label="First year"></label>
+          <label>to <input id="yto" type="number" min="1999" max="2030" aria-label="Last year"></label>
+          <span class="hint">(1999 papers are low-quality scans, so the default starts at 2000)</span>
+        </div>
+        <div class="row wrap">
+          <label><input id="old" type="checkbox" checked> Include questions from older syllabuses</label>
+          <label>Topic match <select id="share"></select></label>
+        </div>
+        <div class="row wrap">
+          <label><input id="showsrc" type="checkbox" checked> Show the source (year, paper, question) on the question paper</label>
+          <label><input id="use-excl" type="checkbox" checked> Skip questions from excluded papers <span id="excl-count" class="hint"></span></label>
+        </div>
+        <div class="row wrap">
+          <label>Random seed <input id="seed" type="text" size="8"></label>
+          <button id="reseed" class="btn">New seed</button>
+        </div>
+        <p class="hint">Same settings + same seed = the same paper. Whole questions are picked first; stand-alone parts top up the last few marks so each total is exact. See <a href="#" data-goto="how">How it works</a>.</p>
+      </details>
+      <div class="gen-bar">
         <button id="generate" class="btn primary">Generate paper</button>
       </div>
-      <p class="hint">Same settings + same seed = the same paper. Whole questions are picked first; stand-alone parts top up the last few marks so each total is exact. See <a href="#" data-goto="how">How it works</a>.</p>
     </section>
     <section class="card" id="gen-review" hidden>
       <h2><span class="num">3</span> Review <span class="pill round"></span></h2>
@@ -79,7 +84,7 @@
   </div>
 
   <!-- ============ MANUAL ============ -->
-  <div class="tabpanel" id="tab-manual" hidden>
+  <div class="tabpanel" id="tab-manual" role="tabpanel" aria-labelledby="tabbtn-manual" hidden>
     <div class="split">
       <section class="card left">
         <h2>Find questions</h2>
@@ -89,8 +94,10 @@
           <div><b>Paper type</b></div>
           <div id="m-cats" class="chipselect"></div>
           <div class="row wrap">
-            <label>Years <input id="m-yfrom" type="number"> to <input id="m-yto" type="number"></label>
-            <label>Marks <input id="m-mmin" type="number" min="0" placeholder="min"> to <input id="m-mmax" type="number" min="0" placeholder="max"></label>
+            <label>Years <input id="m-yfrom" type="number" aria-label="First year"></label>
+            <label>to <input id="m-yto" type="number" aria-label="Last year"></label>
+            <label>Marks <input id="m-mmin" type="number" min="0" placeholder="min" aria-label="Fewest marks"></label>
+            <label>to <input id="m-mmax" type="number" min="0" placeholder="max" aria-label="Most marks"></label>
           </div>
           <div class="row wrap">
             <label><input id="m-old" type="checkbox" checked> Older syllabuses</label>
@@ -101,7 +108,7 @@
               <option value="marks">Most marks</option><option value="random">Shuffle</option></select></label>
           </div>
         </div>
-        <div id="m-count" class="hint"></div>
+        <div id="m-count" class="hint" role="status" aria-live="polite"></div>
         <div id="m-results"></div>
         <button id="m-more" class="btn" hidden>Show more</button>
       </section>
@@ -113,24 +120,24 @@
   </div>
 
   <!-- ============ EXCLUSIONS ============ -->
-  <div class="tabpanel" id="tab-exclude" hidden>
+  <div class="tabpanel" id="tab-exclude" role="tabpanel" aria-labelledby="tabbtn-exclude" hidden>
     <section class="card">
       <h2>Exclude papers you've already used</h2>
       <p>Paste the <b>paper code</b> of each paper you've used, one per line. Every question in those papers is then skipped by the generator and marked "used before" in <b>Pick manually</b>. The code is printed at the top of every generated question paper and mark scheme, and <b>Copy paper code</b> gives it too.</p>
-      <textarea id="x-input" rows="5" placeholder="2Bks3UTJYWhQ…&#10;2Ak9F…"></textarea>
+      <textarea id="x-input" rows="5" aria-label="Paper codes, one per line" placeholder="2Bks3UTJYWhQ…&#10;2Ak9F…"></textarea>
       <div class="row wrap">
         <label>Label (optional) <input id="x-label" type="text" placeholder="e.g. Mock 1, Sept quiz"></label>
         <button id="x-add" class="btn primary">Add codes</button>
         <button id="x-add-current" class="btn">Add the current paper</button>
       </div>
-      <div id="x-msg" class="status"></div>
+      <div id="x-msg" class="status" role="status" aria-live="polite"></div>
       <div id="x-list"></div>
       <p class="hint">Exclusions are saved in this browser. To share them, copy the codes into a document.</p>
     </section>
   </div>
 
   <!-- ============ HOW IT WORKS ============ -->
-  <div class="tabpanel" id="tab-how" hidden>
+  <div class="tabpanel" id="tab-how" role="tabpanel" aria-labelledby="tabbtn-how" hidden>
     <section class="card prose">
       <h2>How the random picker works</h2>
       <p>Every question in the bank carries a record: year, session, time zone, paper, question number, marks, which syllabus subtopics each part covers, which parts depend on earlier parts, whether the data booklet is needed, and where the question and its mark scheme sit on the original pages. The picker works only with these records; the question itself is cropped from your own PDFs at the end.</p>
@@ -167,7 +174,7 @@
   </div>
 </main>
 
-<div id="modal" class="modal" hidden><div class="modal-body"><button id="modal-close" class="btn">Close</button><div id="modal-content"></div></div></div>
+<div id="modal" class="modal" role="dialog" aria-modal="true" aria-label="Question and mark scheme" hidden><div class="modal-body"><button id="modal-close" class="btn">Close</button><div id="modal-content"></div></div></div>
 <footer>Questions, mark schemes and diagrams come from your own copies of IB past papers. This tool only records where each question is and which syllabus topics it covers.</footer>
 <script type="module" src="js/app.js"></script>
 </body>

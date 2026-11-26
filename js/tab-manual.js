@@ -1,6 +1,6 @@
 // Pick manually: filter questions on the left, tick to add them to the paper on the right.
 import * as G from "./generator.js";
-import { $, state, store, changed, chips, esc, excludedIds, ensurePaper, emptyPaper, observeThumbs, openViewer, renderPaperPanel, wirePaperPanel } from "./core.js";
+import { $, state, store, changed, chips, esc, excludedIds, ensurePaper, emptyPaper, observeThumbs, openViewer, renderPaperPanel, wirePaperPanel, topicGroups, syncGroupBoxes } from "./core.js";
 import { SHARE_OPTIONS } from "./tab-generate.js";
 
 const PAGE = 25;
@@ -9,8 +9,13 @@ let shuffleKey = Math.random();
 
 export function initManual() {
   $("m-share").innerHTML = SHARE_OPTIONS.map(([v, l]) => `<option value="${v}">${l}</option>`).join("");
-  const refilter = () => { shown = PAGE; saveFilters(); renderResults(); };
-  ["m-topics", "m-cats"].forEach((id) => ($(id).onchange = refilter));
+  const refilter = () => { shown = PAGE; syncGroupBoxes($("m-topics"), "data-mtg", "data-mt"); saveFilters(); renderResults(); };
+  $("m-cats").onchange = refilter;
+  $("m-topics").onchange = (e) => {
+    const g = e.target.dataset.mtg;
+    if (g !== undefined) document.querySelectorAll("[data-mt]").forEach((c) => { if (c.dataset.mt.split(".")[0] === g) c.checked = e.target.checked; });
+    refilter();
+  };
   ["m-yfrom", "m-yto", "m-mmin", "m-mmax", "m-old", "m-share", "m-hideused", "m-sort"].forEach((id) => ($(id).onchange = refilter));
   $("m-sort").addEventListener("change", () => (shuffleKey = Math.random()));
   $("m-t-all").onclick = () => { document.querySelectorAll("[data-mt]").forEach((c) => (c.checked = true)); refilter(); };
@@ -40,14 +45,19 @@ export function initManual() {
 
 export function resetManual() {
   const saved = store.get("mfilters:" + state.subjectId, null);
+  if (saved && saved.topics && !saved.topics.some((c) => c !== "OUT" && state.bank.topics.some((t) => t.code === c))) delete saved.topics;
   $("m-cats").innerHTML = G.CATEGORIES.map((c) => `<label class="chipbox"><input type="checkbox" data-mcat="${c.key}" checked> ${c.label}</label>`).join("");
-  $("m-topics").innerHTML = state.bank.topics.filter((t) => t.code !== "OUT").map((t) =>
-    `<label class="chipbox" title="${esc(t.name)}"><input type="checkbox" data-mt="${t.code}" ${saved && saved.topics && !saved.topics.includes(t.code) ? "" : "checked"}> ${t.code}</label>`).join("") +
+  const chip = (t) => `<label class="chipbox" title="${esc(t.name)}"><input type="checkbox" data-mt="${t.code}" ${saved && saved.topics && !saved.topics.includes(t.code) ? "" : "checked"}> ${t.code}</label>`;
+  const groups = topicGroups(state.bank);
+  $("m-topics").innerHTML = (groups
+    ? groups.map((g) => `<div class="mgroup"><label class="chipbox grp" title="Every subtopic of ${esc(g.name)}"><input type="checkbox" data-mtg="${g.key}"> ${esc(g.key)} ${esc(g.name)}</label>${g.topics.map(chip).join("")}</div>`).join("")
+    : state.bank.topics.filter((t) => t.code !== "OUT").map(chip).join("")) +
     `<label class="chipbox" title="Questions or parts outside the current syllabus"><input type="checkbox" data-mt="OUT" ${saved && saved.topics && saved.topics.includes("OUT") ? "checked" : ""}> not in syllabus</label>`;
   const years = state.bank.items.map((i) => i.y);
   $("m-yfrom").value = saved?.yfrom ?? Math.max(Math.min(...years), state.bank.defaultYearFrom || 0);
   $("m-yto").value = saved?.yto ?? Math.max(...years);
   if (saved?.cats) document.querySelectorAll("[data-mcat]").forEach((c) => (c.checked = saved.cats.includes(c.dataset.mcat)));
+  syncGroupBoxes($("m-topics"), "data-mtg", "data-mt");
   shown = PAGE;
 }
 function saveFilters() {

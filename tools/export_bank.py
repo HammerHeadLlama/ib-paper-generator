@@ -76,6 +76,7 @@ def main():
     ap.add_argument("--subject", default="Physics HL")
     ap.add_argument("--default-year-from", type=int, default=0, help="first year selected by default in the site")
     ap.add_argument("--categories", help='JSON list of paper types, e.g. [{"key":"P1","label":"Paper 1","def":30}] (default: the Physics set)')
+    ap.add_argument("--groups", help='JSON object naming topic groups by code prefix, e.g. {"1": "Number and algebra"}; the site then groups subtopics with a tick-all')
     ap.add_argument("--booklet", default="data booklet", help='what the site calls the booklet, e.g. "formula booklet"')
     a = ap.parse_args()
     work = Path(a.work)
@@ -137,6 +138,8 @@ def main():
             "booklet": a.booklet}
     if a.categories:
         bank["categories"] = json.loads(a.categories)
+    if a.groups:
+        bank["groups"] = json.loads(a.groups)
     Path(a.out).parent.mkdir(parents=True, exist_ok=True)
     Path(a.out).write_text(json.dumps(bank, separators=(",", ":")))
     print(f"{len(items)} items from {len(ft.files)} files -> {a.out} ({os.path.getsize(a.out) / 1e6:.1f} MB); skipped {skipped}")

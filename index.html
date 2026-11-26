@@ -147,7 +147,7 @@
   <div class="tabpanel" id="tab-how" role="tabpanel" aria-labelledby="tabbtn-how" hidden>
     <section class="card prose">
       <h2>How the random picker works</h2>
-      <p>Each question in the bank has a record: year, session, time zone, paper, question number, marks, which syllabus subtopics each part covers, which parts depend on earlier parts, whether it needs the data booklet, and where the question and its mark scheme are on the original pages. The picker only uses these records. The question itself is cropped from your own PDFs at the end.</p>
+      <p>Each question in the bank has a record: year, session, time zone, paper, question number, marks, which syllabus subtopics each part covers, which parts depend on earlier parts, whether it needs the data or formula booklet, and where the question and its mark scheme are on the original pages. The picker only uses these records. The question itself is cropped from your own PDFs at the end.</p>
 
       <h3>1. Which questions can be picked</h3>
       <p>A question can be picked when all of these are true:</p>
@@ -164,7 +164,7 @@
       <h3>3. Hitting the marks exactly</h3>
       <ul>
         <li><b>Multiple choice:</b> each question is 1 mark, so the picker takes as many as you asked for.</li>
-        <li><b>Written papers (1B, 2, 3):</b> the picker walks down the random order and adds each <b>whole question</b> that still fits in the marks left.</li>
+        <li><b>Written papers:</b> the picker walks down the random order and adds each <b>whole question</b> that still fits in the marks left.</li>
         <li>It then fills the last few marks with <b>stand-alone parts</b>: parts of other questions that don't depend on earlier parts, for example Q4(c) on its own. A small search finds a combination of at most four parts whose marks add up exactly.</li>
         <li>If no combination fits, it drops one or two of the last whole questions and tries again, up to 40 times. If the questions still can't reach your total, the review shows how many marks are missing.</li>
       </ul>

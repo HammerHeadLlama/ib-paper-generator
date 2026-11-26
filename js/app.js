@@ -1,3 +1,4 @@
+import * as G from "./generator.js";
 import { $, state, onChange, indexFiles, walkDrop, setLoadStatus, closeModal } from "./core.js";
 import { initGenerate, resetGenerate, refreshGenerate } from "./tab-generate.js";
 import { initManual, resetManual, refreshManual } from "./tab-manual.js";
@@ -27,6 +28,7 @@ async function loadBank(id) {
   state.subjectId = id;
   const s = state.subjects.find((x) => x.id === id);
   state.bank = await (await fetch(s.bank)).json();
+  G.setCategories(state.bank);
   state.files.clear();
   state.pdfjs.clear();
   state.paper = null;

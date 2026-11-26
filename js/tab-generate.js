@@ -9,7 +9,7 @@ export const SHARE_OPTIONS = [
   ["1", "Every part on my topics"],
   ["0.01", "Any part on my topics"],
 ];
-let rest = "P2";
+let rest = "P2"; // the paper type that "fill the rest" adjusts
 
 export function initGenerate() {
   $("share").innerHTML = SHARE_OPTIONS.map(([v, l]) => `<option value="${v}">${l}</option>`).join("");
@@ -31,6 +31,9 @@ export function initGenerate() {
 }
 
 export function resetGenerate() {
+  const saved = loadMix();
+  rest = G.CATEGORIES.some((c) => c.key === saved.rest) ? saved.rest : (G.CATEGORIES.find((c) => c.key === "P2") || G.CATEGORIES[0]).key;
+  $("mix").innerHTML = ""; // don't carry the previous subject's numbers over
   const years = state.bank.items.map((i) => i.y);
   $("yfrom").value = Math.max(Math.min(...years), state.bank.defaultYearFrom || 0);
   $("yto").value = Math.max(...years);
@@ -84,12 +87,11 @@ function renderMix() {
   if (!state.bank) return;
   const prev = {};
   document.querySelectorAll("[data-mix]").forEach((i) => (prev[i.dataset.mix] = i.value));
-  const saved = store.get("mix", { MCQ: 20, P1B: 0, P2: 30, P3: 0, rest: "P2" });
-  rest = rest || saved.rest || "P2";
+  const saved = loadMix();
   const s = currentSettings(false);
   $("mix").innerHTML = G.CATEGORIES.map((c) => {
     const cap = G.capacity(state.bank, c.key, s);
-    const v = prev[c.key] ?? saved[c.key] ?? 0;
+    const v = prev[c.key] ?? saved[c.key] ?? c.def ?? 0;
     return `<div class="mixbox"><div><b>${c.label}</b></div>
       <div class="row"><label>Marks <input data-mix="${c.key}" aria-label="Marks for ${c.label}" type="number" min="0" value="${v}"></label>
       <label title="Typing a total changes this box"><input type="radio" name="rest" value="${c.key}" aria-label="${c.label} fills the rest" ${rest === c.key ? "checked" : ""}> fill the rest</label></div>
@@ -106,7 +108,12 @@ function updateTotal() {
 function saveMix() {
   const m = { rest };
   document.querySelectorAll("[data-mix]").forEach((i) => (m[i.dataset.mix] = parseInt(i.value || "0", 10)));
-  store.set("mix", m);
+  store.set("mix:" + state.subjectId, m);
+}
+// Marks per paper type, saved per subject (Physics falls back to the key used before subjects existed).
+function loadMix() {
+  const legacy = state.subjectId === "physics-hl" ? store.get("mix", null) : null;
+  return store.get("mix:" + state.subjectId, null) || legacy || {};
 }
 function generate() {
   const s = currentSettings();

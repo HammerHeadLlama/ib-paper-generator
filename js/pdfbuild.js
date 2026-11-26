@@ -1,6 +1,6 @@
 // Builds the question paper and the mark scheme as two PDFs by cropping regions out of the user's own past papers.
 import { PDFDocument, StandardFonts, rgb, degrees } from "../vendor/pdf-lib.esm.min.js";
-import { itemIndex, entryParts, entryMarks, isWhole, sourceLabel, categoryOf, CATEGORIES } from "./generator.js";
+import { itemIndex, entryParts, entryMarks, isWhole, sourceLabel, categoryOf, CATEGORIES, bookletName } from "./generator.js";
 
 const A4 = [595.28, 841.89];
 const M = 40;
@@ -125,7 +125,7 @@ export async function buildPdfs(bank, paper, getFile, opts = {}) {
     const L = new Layout(doc, fonts);
     L.newPage();
     L.text(kind === "q" ? title : `${title} - mark scheme`, 15, true);
-    L.text(`Total: ${total} marks | ${paper.entries.length} questions${booklet && kind === "q" ? " | Data booklet required" : ""}`, 10);
+    L.text(`Total: ${total} marks | ${paper.entries.length} questions${booklet && kind === "q" ? ` | ${bookletName(bank).replace(/^./, (c) => c.toUpperCase())} required` : ""}`, 10);
     if (codeLine) L.text(codeLine, 8, false, rgb(0.4, 0.4, 0.4));
     L.y -= 6;
     let n = 0, lastCat = null;

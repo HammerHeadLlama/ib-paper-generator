@@ -2,16 +2,25 @@
 // A paper is a list of entries {id, parts}: parts === null means the whole question;
 // otherwise the chosen top-level part keys (their prerequisite parts are added automatically).
 
-export const CATEGORIES = [
-  { key: "MCQ", label: "Multiple choice (Paper 1 / 1A)" },
-  { key: "P1B", label: "Paper 1B (data-based)" },
-  { key: "P2", label: "Paper 2 (written)" },
-  { key: "P3", label: "Paper 3 (written)" },
+// Paper types differ by subject (Math has no multiple choice; Physics and Chemistry have Paper 1B from 2025).
+// Each bank lists its own in `categories`; banks without one get the Physics set. The order is part of the
+// paper-code format, so never reorder an existing subject's list.
+export const DEFAULT_CATEGORIES = [
+  { key: "MCQ", label: "Multiple choice (Paper 1 / 1A)", def: 20 },
+  { key: "P1B", label: "Paper 1B (data-based)", def: 0 },
+  { key: "P2", label: "Paper 2 (written)", def: 30 },
+  { key: "P3", label: "Paper 3 (written)", def: 0 },
 ];
+export let CATEGORIES = DEFAULT_CATEGORIES;
+export function setCategories(bank) {
+  CATEGORIES = (bank && bank.categories && bank.categories.length) ? bank.categories : DEFAULT_CATEGORIES;
+  return CATEGORIES;
+}
+export function bookletName(bank) { return (bank && bank.booklet) || "data booklet"; }
 
 export function categoryOf(item) {
   if (item.mcq) return "MCQ";
-  return "P" + item.p; // P1B, P2, P3 (older P2/P3 too)
+  return "P" + String(item.p).split("-")[0]; // P1, P1B, P2, P3; old option papers like "3-STAT" count as P3
 }
 
 // ---------- seeded randomness ----------

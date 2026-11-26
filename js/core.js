@@ -222,7 +222,7 @@ export function renderPaperPanel(container, mode) {
     const parts = it.parts && !it.mcq ? `<div class="parts">${it.parts.map((x) => `<label title="${esc(x.t.join(", "))}${x.n && x.n.length ? " | needs " + x.n.join(", ") : ""}"><input type="checkbox" data-part="${i}" value="${esc(x.k)}" ${keep.includes(x.k) ? "checked" : ""}> (${esc(x.k.replace(/^P/, "Part "))}) ${x.m}m</label>`).join("")}</div>` : "";
     const m = G.entryMarks(it, e);
     html += `<div class="entry"><div class="thumb" data-thumb-id="${esc(it.id)}" data-thumb-entry="${i}" data-pact="view" data-i="${i}" aria-hidden="true">${state.files.size ? "loading…" : "Load your folder to see a preview"}</div>
-      <div class="meta"><div class="top"><span class="qn">Question ${i + 1}</span><span>[${m} mark${m === 1 ? "" : "s"}]</span><span class="src">${esc(G.sourceLabel(it, e))}${it.bk ? " | data booklet" : ""}</span>${excl.has(it.id) ? '<span class="flag">used before</span>' : ""}</div>
+      <div class="meta"><div class="top"><span class="qn">Question ${i + 1}</span><span>[${m} mark${m === 1 ? "" : "s"}]</span><span class="src">${esc(G.sourceLabel(it, e))}${it.bk ? " | " + G.bookletName(b) : ""}</span>${excl.has(it.id) ? '<span class="flag">used before</span>' : ""}</div>
       <div class="chips">${chips(topics)}</div>${parts}
       <div class="actions">
         <button class="btn small" data-pact="up" data-i="${i}" ${i ? "" : "disabled"} title="Move up" aria-label="Move question ${i + 1} up">&uarr;</button>

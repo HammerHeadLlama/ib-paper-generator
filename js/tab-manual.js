@@ -9,7 +9,6 @@ let shuffleKey = Math.random();
 
 export function initManual() {
   $("m-share").innerHTML = SHARE_OPTIONS.map(([v, l]) => `<option value="${v}">${l}</option>`).join("");
-  $("m-cats").innerHTML = G.CATEGORIES.map((c) => `<label class="chipbox"><input type="checkbox" data-mcat="${c.key}" checked> ${c.label}</label>`).join("");
   const refilter = () => { shown = PAGE; saveFilters(); renderResults(); };
   ["m-topics", "m-cats"].forEach((id) => ($(id).onchange = refilter));
   ["m-yfrom", "m-yto", "m-mmin", "m-mmax", "m-old", "m-share", "m-hideused", "m-sort"].forEach((id) => ($(id).onchange = refilter));
@@ -41,6 +40,7 @@ export function initManual() {
 
 export function resetManual() {
   const saved = store.get("mfilters:" + state.subjectId, null);
+  $("m-cats").innerHTML = G.CATEGORIES.map((c) => `<label class="chipbox"><input type="checkbox" data-mcat="${c.key}" checked> ${c.label}</label>`).join("");
   $("m-topics").innerHTML = state.bank.topics.filter((t) => t.code !== "OUT").map((t) =>
     `<label class="chipbox" title="${esc(t.name)}"><input type="checkbox" data-mt="${t.code}" ${saved && saved.topics && !saved.topics.includes(t.code) ? "" : "checked"}> ${t.code}</label>`).join("") +
     `<label class="chipbox" title="Questions or parts outside the current syllabus"><input type="checkbox" data-mt="OUT" ${saved && saved.topics && saved.topics.includes("OUT") ? "checked" : ""}> not in syllabus</label>`;
@@ -104,7 +104,7 @@ function renderResults() {
       <div class="thumb small" data-thumb-id="${esc(it.id)}" data-view="${esc(it.id)}" aria-hidden="true">${state.files.size ? "loading…" : ""}</div>
       <div class="meta">
         <div class="top"><span class="src2">${esc(G.sourceLabel(it, { id: it.id, parts: null }))}</span><span>[${it.m} mark${it.m === 1 ? "" : "s"}]</span>
-          ${it.bk ? '<span class="hint">data booklet</span>' : ""}${excl.has(it.id) ? '<span class="flag">used before</span>' : ""}</div>
+          ${it.bk ? `<span class="hint">${G.bookletName(state.bank)}</span>` : ""}${excl.has(it.id) ? '<span class="flag">used before</span>' : ""}</div>
         <div class="chips">${chips(it.t)}</div>
         <button class="btn small" data-view="${esc(it.id)}">View with mark scheme</button>
       </div>

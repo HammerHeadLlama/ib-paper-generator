@@ -75,6 +75,8 @@ def main():
     ap.add_argument("--out", required=True)
     ap.add_argument("--subject", default="Physics HL")
     ap.add_argument("--default-year-from", type=int, default=0, help="first year selected by default in the site")
+    ap.add_argument("--categories", help='JSON list of paper types, e.g. [{"key":"P1","label":"Paper 1","def":30}] (default: the Physics set)')
+    ap.add_argument("--booklet", default="data booklet", help='what the site calls the booklet, e.g. "formula booklet"')
     a = ap.parse_args()
     work = Path(a.work)
     topics = json.loads((work / "topics.json").read_text())
@@ -131,7 +133,10 @@ def main():
             items.append(it)
     bank = {"format": 1, "subject": a.subject, "guide": topics.get("guide"), "guideFirstExam": topics.get("guide_first_exam"),
             "topics": topics["topics"] + [{"code": "OUT", "name": "Not in current syllabus"}],
-            "files": ft.files, "items": items, "skipped": skipped, "defaultYearFrom": a.default_year_from}
+            "files": ft.files, "items": items, "skipped": skipped, "defaultYearFrom": a.default_year_from,
+            "booklet": a.booklet}
+    if a.categories:
+        bank["categories"] = json.loads(a.categories)
     Path(a.out).parent.mkdir(parents=True, exist_ok=True)
     Path(a.out).write_text(json.dumps(bank, separators=(",", ":")))
     print(f"{len(items)} items from {len(ft.files)} files -> {a.out} ({os.path.getsize(a.out) / 1e6:.1f} MB); skipped {skipped}")

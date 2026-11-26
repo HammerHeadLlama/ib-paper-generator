@@ -11,7 +11,7 @@ Nothing is generated or rewritten: every question, diagram and mark-scheme entry
 The page has four tabs:
 
 ### Generate
-- **Topics**: the list changes with the subject: Physics subtopics A.1 … E.5 plus *TOOLS*, Chemistry S1.1 … R3.4, Math AA topics 1–5. Each is weighted *A bit*, *Normal* or *A lot*.
+- **Topics**: the list changes with the subject: Physics subtopics A.1 … E.5 plus *TOOLS*, Chemistry S1.1 … R3.4, Math AA's 83 subtopics (SL 1.1 … AHL 5.19) grouped under its 5 topics, each with a tick-all and a *Weight all* control. Each is weighted *A bit*, *Normal* or *A lot*.
 - **Marks by paper type**: also per subject. Physics and Chemistry: multiple choice (Paper 1 / 1A, 1 mark each), Paper 1B, Paper 2 and Paper 3. Math AA: Papers 1, 2 and 3. Any of them can be 0. Typing a **total** adjusts the type ticked *fill the rest*.
 - **Options**: year range, older-syllabus questions on or off, how strictly a question must match your topics, whether the question paper shows sources, and whether to skip questions from excluded papers.
 - **Generate**: whole questions are picked at random across years, then stand-alone parts top up the last few marks, so each total is exact when enough questions exist.
@@ -35,7 +35,7 @@ IB past papers and mark schemes are copyright of the International Baccalaureate
 
 ## How it works
 
-- `data/subjects.json` lists the subjects in the dropdown. Each points to a question bank (`data/physics-hl.json`, `data/chemistry-hl.json`, `data/math-aa-hl.json`). A bank can list its own paper types (`categories`) and booklet name (`booklet`); without them it gets the Physics paper types. Don't reorder an existing subject's paper types: paper codes depend on that order.
+- `data/subjects.json` lists the subjects in the dropdown. Each points to a question bank (`data/physics-hl.json`, `data/chemistry-hl.json`, `data/math-aa-hl.json`). A bank can list its own paper types (`categories`), booklet name (`booklet`) and topic groups (`groups`, keyed by the code before the dot); without them it gets the Physics paper types. Don't reorder an existing subject's paper types: paper codes depend on that order.
 - Each bank holds every question Each question has its topics per part, which parts depend on which (`needs`), the marks, and where it sits in the original PDF (page and rectangle in PDF coordinates).
 - `js/generator.js`: seeded random selection, exact mark totals (whole questions plus a small subset-sum over stand-alone parts), replace, partial questions, fill-the-gaps rounds and paper codes. Pure JavaScript with no page code, so it also runs in Node.
 - `js/pdfbuild.js` crops the regions out of the original PDFs as vector graphics with [pdf-lib](https://github.com/Hopding/pdf-lib).
@@ -56,7 +56,7 @@ Files are matched by size and SHA-256, so load the subject's folder as downloade
 **Chemistry HL**: 201 papers (2000–2025), 4,821 questions, classified against the Chemistry guide for first assessment 2025.
 - Paper 3 (options) is from the older syllabus, last set in 2024. The 2025 syllabus has Papers 1A, 1B and 2.
 
-**Math AA HL**: 271 papers (2000–2025), 2,484 questions, classified against the five topics of the Math: analysis and approaches guide (first assessment 2021).
+**Math AA HL**: 271 papers (2000–2025), 2,484 questions, classified against the 83 subtopics of the Math: analysis and approaches guide (first assessment 2021). Each part is tagged with the subtopics it examines, not every skill it uses along the way. The subtopic names are short descriptions of the guide's content statements (the guide gives codes only).
 - Before 2021 this was Mathematics HL; its Paper 3 option papers (statistics, sets, series, discrete) count as Paper 3.
 - Questions needing the formula booklet are flagged, and the PDF says "Formula booklet required".
 

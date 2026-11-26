@@ -26,6 +26,31 @@ export function onChange(fn) { state.listeners.push(fn); }
 export function changed() { for (const fn of state.listeners) fn(); }
 export const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 export function topicName(code) { return (state.bank.topics.find((t) => t.code === code) || {}).name || code; }
+// Topics grouped by the part of the code before the first dot ("2.9" -> "2"), when the bank names its groups.
+export function topicGroups(bank) {
+  if (!bank.groups) return null;
+  const out = [];
+  for (const t of bank.topics) {
+    if (t.code === "OUT") continue;
+    const key = t.code.split(".")[0];
+    let g = out.find((x) => x.key === key);
+    if (!g) out.push((g = { key, name: bank.groups[key] || key, topics: [] }));
+    g.topics.push(t);
+  }
+  return out;
+}
+// Tick-all boxes: checked when every topic in the group is on, half-ticked when some are.
+export function syncGroupBoxes(root, groupAttr, topicAttr) {
+  root.querySelectorAll(`[${groupAttr}]`).forEach((g) => {
+    const key = g.getAttribute(groupAttr);
+    const boxes = [...root.querySelectorAll(`[${topicAttr}]`)].filter((c) => c.getAttribute(topicAttr).split(".")[0] === key);
+    const on = boxes.filter((c) => c.checked).length;
+    g.checked = on === boxes.length && on > 0;
+    g.indeterminate = on > 0 && on < boxes.length;
+    const count = root.querySelector(`[data-count="${key}"]`);
+    if (count) count.textContent = `${on}/${boxes.length}`;
+  });
+}
 export function chips(codes) {
   return codes.map((t) => `<span class="chip ${t === "OUT" ? "out" : ""}" title="${esc(topicName(t))}">${t === "OUT" ? "not in syllabus" : t}</span>`).join("");
 }

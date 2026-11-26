@@ -1,6 +1,6 @@
 // Generate tab: settings, random generation, review rounds.
 import * as G from "./generator.js";
-import { $, state, store, changed, excludedIds, currentExcludeSet, renderPaperPanel, wirePaperPanel } from "./core.js";
+import { $, state, store, changed, esc, excludedIds, currentExcludeSet, renderPaperPanel, wirePaperPanel, topicGroups, syncGroupBoxes } from "./core.js";
 
 const WEIGHTS = { "A bit": 0.3, Normal: 1, "A lot": 2.5 };
 export const SHARE_OPTIONS = [
@@ -16,7 +16,24 @@ export function initGenerate() {
   $("seed").value = G.randomSeed();
   $("t-all").onclick = () => { document.querySelectorAll("[data-t]").forEach((c) => (c.checked = true)); topicsChanged(); };
   $("t-none").onclick = () => { document.querySelectorAll("[data-t]").forEach((c) => (c.checked = false)); topicsChanged(); };
-  $("topics").onchange = topicsChanged;
+  $("topics").onchange = (e) => {
+    const g = e.target.dataset.tg, gw = e.target.dataset.tgw;
+    const inGroup = (key) => [...document.querySelectorAll("[data-t]")].filter((c) => c.dataset.t.split(".")[0] === key);
+    if (g !== undefined) inGroup(g).forEach((c) => (c.checked = e.target.checked));
+    if (gw !== undefined && e.target.value) {
+      inGroup(gw).forEach((c) => { c.checked = true; document.querySelector(`[data-w="${c.dataset.t}"]`).value = e.target.value; });
+      e.target.value = "";
+    }
+    topicsChanged();
+  };
+  $("topics").onclick = (e) => {
+    const b = e.target.closest("[data-tgc]");
+    if (!b) return;
+    const body = document.querySelector(`[data-tgbody="${b.dataset.tgc}"]`);
+    body.hidden = !body.hidden;
+    b.setAttribute("aria-expanded", String(!body.hidden));
+    b.textContent = body.hidden ? "Show subtopics" : "Hide subtopics";
+  };
   $("total").oninput = () => {
     const total = Math.max(0, parseInt($("total").value || "0", 10));
     let others = 0;
@@ -54,15 +71,27 @@ export function refreshGenerate() {
 }
 
 function renderTopics() {
-  const saved = store.get("topics:" + state.subjectId, null);
-  $("topics").innerHTML = state.bank.topics.filter((t) => t.code !== "OUT").map((t) => {
+  let saved = store.get("topics:" + state.subjectId, null);
+  // a selection saved under an older topic list (e.g. Math's 5 topics before subtopics) doesn't apply
+  if (saved && !state.bank.topics.some((t) => t.code in saved)) saved = null;
+  const row = (t) => {
     const on = saved ? saved[t.code] > 0 : true;
     const w = saved && saved[t.code] > 0 ? Object.keys(WEIGHTS).find((k) => WEIGHTS[k] === saved[t.code]) || "Normal" : "Normal";
-    return `<div class="topic"><label><input type="checkbox" data-t="${t.code}" ${on ? "checked" : ""}> <b>${t.code}</b> ${t.name}</label>
-      <select data-w="${t.code}" aria-label="Weight for ${t.code} ${t.name}">${Object.keys(WEIGHTS).map((k) => `<option ${k === w ? "selected" : ""}>${k}</option>`).join("")}</select></div>`;
-  }).join("");
+    return `<div class="topic"><label><input type="checkbox" data-t="${t.code}" ${on ? "checked" : ""}> <b>${t.code}</b> ${esc(t.name)}</label>
+      <select data-w="${t.code}" aria-label="Weight for ${t.code} ${esc(t.name)}">${Object.keys(WEIGHTS).map((k) => `<option ${k === w ? "selected" : ""}>${k}</option>`).join("")}</select></div>`;
+  };
+  const groups = topicGroups(state.bank);
+  $("topics").classList.toggle("grouped", !!groups);
+  if (!groups) { $("topics").innerHTML = state.bank.topics.filter((t) => t.code !== "OUT").map(row).join(""); return; }
+  $("topics").innerHTML = groups.map((g) => `<section class="tgroup">
+      <div class="tg-head"><label><input type="checkbox" data-tg="${g.key}"> <b>${esc(g.key)}</b> ${esc(g.name)}</label>
+        <span class="hint" data-count="${g.key}"></span>
+        <select data-tgw="${g.key}" aria-label="Weight for every subtopic of ${esc(g.name)}"><option value="">Weight all…</option>${Object.keys(WEIGHTS).map((k) => `<option>${k}</option>`).join("")}</select>
+        <button class="btn small" data-tgc="${g.key}" aria-expanded="false">Show subtopics</button></div>
+      <div class="topics" data-tgbody="${g.key}" hidden>${g.topics.map(row).join("")}</div></section>`).join("");
+  syncGroupBoxes($("topics"), "data-tg", "data-t");
 }
-function topicsChanged() { store.set("topics:" + state.subjectId, readTopics()); renderMix(); }
+function topicsChanged() { syncGroupBoxes($("topics"), "data-tg", "data-t"); store.set("topics:" + state.subjectId, readTopics()); renderMix(); }
 function readTopics() {
   const t = {};
   document.querySelectorAll("[data-t]").forEach((cb) => {
